@@ -17,9 +17,12 @@ class Object extends THREE.Object3D {
     ol.setMaterials(materials) ;
     ol.load ( '../models/porsche911/Porsche_911_GT2.obj',
     ( box ) => {
+      box.translateY(0.6);// Moverlo un poco arriba
     this.add ( box ) ;
     } , null , null ) ;
     } );
+
+    this.rot = 0;
   }
   
   createGUI (gui,titleGui) {
@@ -37,6 +40,7 @@ class Object extends THREE.Object3D {
       posY : 0.0,
       posZ : 0.0,
       
+      anim: false,
       // Un botón para dejarlo todo en su posición inicial
       // Cuando se pulse se ejecutará esta función.
       reset : () => {
@@ -51,6 +55,7 @@ class Object extends THREE.Object3D {
         this.guiControls.posX = 0.0;
         this.guiControls.posY = 0.0;
         this.guiControls.posZ = 0.0;
+        this.guiControls.anim = false;
       }
     } 
     
@@ -70,7 +75,7 @@ class Object extends THREE.Object3D {
     folder.add (this.guiControls, 'posX', -20.0, 20.0, 0.01).name ('Posición X : ').listen();
     folder.add (this.guiControls, 'posY', 0.0, 10.0, 0.01).name ('Posición Y : ').listen();
     folder.add (this.guiControls, 'posZ', -20.0, 20.0, 0.01).name ('Posición Z : ').listen();
-    
+    folder.add(this.guiControls, 'anim').name('Girar: ').listen();
     folder.add (this.guiControls, 'reset').name ('[ Reset ]');
   }
   
@@ -81,9 +86,14 @@ class Object extends THREE.Object3D {
     // Después, la rotación en Y
     // Luego, la rotación en X
     // Y por último la traslación
-   
+    
     this.position.set (this.guiControls.posX,this.guiControls.posY,this.guiControls.posZ);
-    this.rotation.set (this.guiControls.rotX,this.guiControls.rotY,this.guiControls.rotZ);
+    if(this.guiControls.anim){
+      this.rot = (this.rot + 0.01)%(Math.PI*2);
+      this.rotation.set (this.guiControls.rotX,this.rot,this.guiControls.rotZ);
+    }else{
+      this.rotation.set (this.guiControls.rotX,this.guiControls.rotY,this.guiControls.rotZ);
+    }
     this.scale.set (this.guiControls.sizeX,this.guiControls.sizeY,this.guiControls.sizeZ);
   }
 }
