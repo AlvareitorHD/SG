@@ -10,16 +10,13 @@ class Pendulo extends THREE.Object3D {
     this.createGUI(gui,titleGui);
     
     // El material se usa desde varios métodos. Por eso se alamacena en un atributo
-    this.material = new THREE.MeshStandardMaterial({color: 0xCF0000});
     this.verde = new THREE.MeshStandardMaterial({color: 0x00CF00});
     // A la base no se accede desde ningún método. Se almacena en una variable local del constructor
     this.tam = 0.15;   // 15 cm de largo. Las unidades son metros
     var tamano = this.tam;
     this.primerpendulo = this.createPrimer(tamano);
+    this.primerpendulo.position.y = -0.045;
     this.prinpendulo = this.createPrin(tamano);
-    // Al nodo que contiene la transformación interactiva que abre y cierra la grapadora se accede desde el método update, se almacena en un atributo.
-    this.movil = this.createMovil(tamano);
-    
     // Al nodo  this, la grapadora, se le cuelgan como hijos la base y la parte móvil
     //this.add (base);
     this.add (this.primerpendulo);
@@ -31,10 +28,12 @@ class Pendulo extends THREE.Object3D {
     var primer = new THREE.Object3D();
     
     var m1 = new THREE.MeshStandardMaterial({color: 0x00AAAA});
-    this.box = new THREE.Mesh(new THREE.BoxGeometry(tam*0.5,tam*2,tam*0.1),m1);
+    var boxg = new THREE.BoxGeometry(tam*0.5,tam*2,tam*0.1);
+    boxg.translate(0,-tam,0);
+    this.box = new THREE.Mesh(boxg,m1);
     var ci = new THREE.Mesh(new THREE.CylinderGeometry(tam*0.1,tam*0.1,tam*0.1,24,1),this.verde);
 
-    this.box.position.y -= tam*0.8;
+    this.box.position.y = tam*0.2;
     ci.rotateX(Math.PI/2);
     ci.position.z += tam*0.1;
 
@@ -46,39 +45,35 @@ class Pendulo extends THREE.Object3D {
   }
 
   createPrin(tam){
-    var primer = new THREE.Object3D();
+    var principal = new THREE.Object3D();
     
     var m1 = new THREE.MeshStandardMaterial({color: 0x00AA00});
     var m2 = new THREE.MeshStandardMaterial({color: 0xAA00AA});
-
+    var m3 = new THREE.MeshStandardMaterial({color: 0xFF0000});
     
-    this.pen = new THREE.Mesh(new THREE.BoxGeometry(tam/2,tam/2,tam*0.16),m1);
+
+    var pen1 = new THREE.Mesh(new THREE.BoxGeometry(tam/2,tam/2,tam*0.16),m1);
+
+    var pen2g = new THREE.BoxGeometry(tam/2,tam/2,tam*0.16);
+    pen2g.translate(0,-tam/4,0);
+    this.pen2 = new THREE.Mesh(pen2g,m3);
+    this.pen2.position.y = -tam/4;
+    
+    var pen3g = new THREE.BoxGeometry(tam/2,tam/2,tam*0.16);
+    pen3g.translate(0,-tam/4,0);
+    this.pen3 = new THREE.Mesh(pen3g,m1);
+    this.pen3.position.y = -tam*0.75;
+
     var ci = new THREE.Mesh(new THREE.CylinderGeometry(tam*0.15,tam*0.15,tam*0.1,16,1),m2);
     ci.rotateX(Math.PI/2);
     ci.position.z += tam*0.1;
-    primer.add(this.pen);
-    primer.add(ci);
-    return primer;
+    principal.add(pen1);
+    principal.add(this.pen2);
+    principal.add(this.pen3);
+    principal.add(ci);
+    return principal;
   }
 
-  createBase(tama) {
-    // El nodo del que van a colgar la caja y los 2 conos y que se va a devolver
-    var base = new THREE.Object3D();
-    // Cada figura, un Mesh, está compuesto de una geometría y un material
-    var cajaBase = new THREE.Mesh (new THREE.BoxGeometry (tama,tama*0.08,tama*0.2), this.material);
-    cajaBase.position.y = tama*0.04;
-    // La componente geometría se puede compartir entre varios meshes
-    var geometriaPivote = new THREE.ConeGeometry (tama*0.05, tama*0.12);
-    var pivote1 = new THREE.Mesh (geometriaPivote, this.material);
-    var pivote2 = new THREE.Mesh (geometriaPivote, this.material);
-    // Se posicionan los pivotes con respecto a la base
-    pivote1.position.set (tama*0.45, tama*0.14, tama*0.05);
-    pivote2.position.set (tama*0.45, tama*0.14, -tama*0.05);
-    base.add(cajaBase);
-    base.add(pivote1);
-    base.add(pivote2);
-    return base;
-  }
   
   createGUI (gui,titleGui) {
     // Controles para el movimiento de la parte móvil
@@ -86,14 +81,21 @@ class Pendulo extends THREE.Object3D {
       rotacion : 0,
       rotaciont: 0,
       dim: 10,
+      dimp:10,
+      des:0.1,
     } 
     
     // Se crea una sección para los controles de la caja
-    var folder1 = gui.addFolder ("Controles péndulo");
+    var folder1 = gui.addFolder (titleGui);
     folder1.add (this.guiControls, 'rotaciont', -0.8, 0.8, 0.01)
       .name ('Apertura : ')
       .onChange ( (value) => this.setAng (-value) );
+
+      folder1.add(this.guiControls, 'dimp',10,20,1).name('Dimension: ').onChange((d) => this.setDimp(d));
+
     var folder2 = gui.addFolder ("Controles péndulo secundario");
+
+    folder2.add(this.guiControls, 'des',0.1,0.9,0.1).name('Desplazamiento: ').onChange((d) => this.setPen(d));
     // Estas lineas son las que añaden los componentes de la interfaz
     // Las tres cifras indican un valor mínimo, un máximo y el incremento
     folder2.add (this.guiControls, 'rotacion', -0.8, 0.8, 0.01)
@@ -103,21 +105,6 @@ class Pendulo extends THREE.Object3D {
     folder2.add(this.guiControls, 'dim',10,20,1).name('Dimension: ').onChange((d) => this.setDim(d));
   }
   
-  createMovil (tama) {
-    // Se crea la parte móvil
-    var cajaMovil = new THREE.Mesh (
-        new THREE.BoxGeometry (tama, tama*0.12, tama*0.2),
-        this.material
-    );
-    cajaMovil.position.set (-tama*0.45, tama*0.06, 0);
-    
-    var movil = new THREE.Object3D();
-    // IMPORTANTE: Con independencia del orden en el que se escriban las 2 líneas siguientes, SIEMPRE se aplica primero la rotación y después la traslación. Prueba a intercambiar las dos líneas siguientes y verás que no se produce ningún cambio al ejecutar.    
-    movil.rotation.z = this.guiControls.rotacion;
-    movil.position.set(tama*0.45,tama*0.2,0);
-    movil.add(cajaMovil);
-    return movil;
-  }
   setAng(valor){
     this.rotation.z = valor;
   }
@@ -126,12 +113,26 @@ class Pendulo extends THREE.Object3D {
   }
   setDim(d) {
     this.box.scale.y = d/10;
-    //console.log(this.box.scale.y);
-    this.box.position.y = -(this.box.scale.y * this.tam);
-    this.box.position.y += this.tam*0.2;
     console.log(this.box.position.y);
 }
+setDimp(d) {
+  this.pen2.scale.y = d/10;
+  //console.log("PEN3: "+this.pen2.geometry.parameters.height*d/10);
+  //altura*escala+tam/4
+  this.pen3.position.y = -(this.pen2.geometry.parameters.height*d/10)-this.tam/4;
+  this.primerpendulo.position.y = -(this.pen2.geometry.parameters.height*d/10);
+}
+setPen(d){
+// Calcular la altura permitida para pen2
+var pen2Height = this.pen2.geometry.parameters.height;
 
+// Calcular la nueva posición Y para primerpendulo dentro del rango de alturas de pen2
+var newPositionY = pen2Height * d*this.guiControls.dimp/10;
+
+// Establecer la nueva posición Y para primerpendulo
+this.primerpendulo.position.y = -this.tam/4 - newPositionY;
+//console.log(this.primerpendulo.position.y);
+}
   update () {
     // No hay nada que actualizar ya que la apertura de la grapadora se ha actualizado desde la interfaz
   }
