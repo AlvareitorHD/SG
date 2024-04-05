@@ -25,10 +25,10 @@ class Rombo extends THREE.Object3D {
     return shape;
   }
   createExtrusion(shape){
-    var options1 = { depth: 1, bevelEnable:false }; // Ajustar la profundidad a 0.05
+    var options1 = { depth : 2 , steps : 2 , bevelEnabled : false }; // Ajustar la profundidad a 0.05
     var romboGeo = new THREE.ExtrudeGeometry(shape, options1);
     //romboGeo.scale(1,1,0.2);
-    var romboMat = new THREE.MeshStandardMaterial({color: 0x00FF00, flatShading: true}); //new THREE.MeshNormalMaterial({ flatShading: false });
+    var romboMat = new THREE.MeshStandardMaterial({color: 0x00AA00, flatShading: true}); //new THREE.MeshNormalMaterial({ flatShading: false });
     this.rombo = new THREE.Mesh(romboGeo, romboMat);
     this.add(this.rombo);
     
@@ -179,7 +179,8 @@ getPathFromTorusKnot (torusKnot) {
 
 hacerRuta(){
   var puntos = [];
-  for (var i = -5; i <= 5; i++) {
+  puntos.push(new THREE.Vector3(0,0,0));
+  for (var i = 1; i <= 5; i++) {
     var x = i * 0.5; // Coordenada x
     var y = Math.pow(x, 2); // Coordenada y, usando una función cuadrática para la curva
     var z = 0; // Coordenada z, en este caso, la curva es plana en el plano xy
@@ -189,11 +190,20 @@ hacerRuta(){
 return puntos;
 }
 
+rotateShape ( aShape , angle=0 , res = 6 , center = new THREE. Vector2 (0 ,0) ) {
+  var points = aShape.extractPoints( res ).shape;
+  points.forEach ( ( p ) => {
+    p.rotateAround ( center , angle ) ; // Los giramos
+  } ) ;
+  return new THREE.Shape ( points ) ; // Construimos y devolvemos un nuevo shape
+  }
+
   createExtrusion(shape){
     //var pts = this.generarTornillo(2,4,2);
+    shape = this.rotateShape(shape);
     var path = new THREE.CatmullRomCurve3(this.hacerRuta());
     //var torus = new THREE.TorusKnotGeometry();
-    var options1 = {steps: 50, curveSegments: 20, extrudePath: path};
+    var options1 = {steps: 50, curveSegments: 20, extrudePath: path, bevelEnabled: true};
     var romboGeo = new THREE.ExtrudeGeometry(shape,options1);
 
     var romboMat = new THREE.MeshNormalMaterial({flatShading: true});
