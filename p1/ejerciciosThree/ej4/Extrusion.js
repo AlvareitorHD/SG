@@ -176,18 +176,24 @@ getPathFromTorusKnot (torusKnot) {
   // Una vez tenemos el array de puntos 3D construimos y devolvemos el CatmullRomCurve3
   return new THREE.CatmullRomCurve3 (points, true);
 }
-hacerRuta(){
-  ruta = [];
 
-  return ruta;
+hacerRuta(){
+  var puntos = [];
+  for (var i = -5; i <= 5; i++) {
+    var x = i * 0.5; // Coordenada x
+    var y = Math.pow(x, 2); // Coordenada y, usando una función cuadrática para la curva
+    var z = 0; // Coordenada z, en este caso, la curva es plana en el plano xy
+    var punto = new THREE.Vector3(x, y, z);
+    puntos.push(punto);
+}
+return puntos;
 }
 
   createExtrusion(shape){
     //var pts = this.generarTornillo(2,4,2);
-    //var path = new THREE.CatmullRomCurve3(pts);
+    var path = new THREE.CatmullRomCurve3(this.hacerRuta());
     //var torus = new THREE.TorusKnotGeometry();
-    path = hacerRuta()
-    var options1 = {steps: 1, curveSegments: 20, extrudePath: };
+    var options1 = {steps: 50, curveSegments: 20, extrudePath: path};
     var romboGeo = new THREE.ExtrudeGeometry(shape,options1);
 
     var romboMat = new THREE.MeshNormalMaterial({flatShading: true});
