@@ -12,10 +12,10 @@ class Object extends THREE.Object3D {
     
     var ml = new MTLLoader();
     var ol = new OBJLoader();
-    ml.load('../models/porsche911/911.mtl' ,
+    ml.load(/*'../models/porsche911/911.mtl'*/ '../models/f1.mtl' ,
     ( materials ) => {
     ol.setMaterials(materials) ;
-    ol.load ( '../models/porsche911/Porsche_911_GT2.obj',
+    ol.load ( /*'../models/porsche911/Porsche_911_GT2.obj'*/ '../models/f1.obj',
     ( box ) => {
       box.translateY(0.6);// Moverlo un poco arriba
     this.add ( box ) ;

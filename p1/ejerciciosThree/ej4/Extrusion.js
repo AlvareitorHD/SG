@@ -134,10 +134,11 @@ class Trebol extends THREE.Object3D {
     
     return shape;
   }
+
   generarTornillo(numeroVueltas, altura, radioTornillo) {
     const puntos = [];
     const pasoAngular = Math.PI / 24; // Ajusta el paso angular según la resolución deseada
-
+    // Una vuelta = 2*PI, t será cada punto
     for (let t = 0; t <= numeroVueltas * 2 * Math.PI; t += pasoAngular) {
         const x = radioTornillo * Math.cos(t);
         const y = t * altura / (numeroVueltas * 2 * Math.PI);
@@ -177,6 +178,7 @@ getPathFromTorusKnot (torusKnot) {
   return new THREE.CatmullRomCurve3 (points, true);
 }
 
+//Hará media función cuadrática
 hacerRuta(){
   var puntos = [];
   puntos.push(new THREE.Vector3(0,0,0));
@@ -190,7 +192,7 @@ hacerRuta(){
 return puntos;
 }
 
-rotateShape ( aShape , angle=0 , res = 6 , center = new THREE. Vector2 (0 ,0) ) {
+rotateShape ( aShape , angle=0 , res = 16 , center = new THREE. Vector2 (0 ,0) ) {
   var points = aShape.extractPoints( res ).shape;
   points.forEach ( ( p ) => {
     p.rotateAround ( center , angle ) ; // Los giramos
@@ -199,10 +201,13 @@ rotateShape ( aShape , angle=0 , res = 6 , center = new THREE. Vector2 (0 ,0) ) 
   }
 
   createExtrusion(shape){
-    //var pts = this.generarTornillo(2,4,2);
-    shape = this.rotateShape(shape);
-    var path = new THREE.CatmullRomCurve3(this.hacerRuta());
+
+    shape = this.rotateShape(shape,Math.PI);
+
+
+    var path = new THREE.CatmullRomCurve3(this.generarTornillo(2,10,2),false,"chordal");
     //var torus = new THREE.TorusKnotGeometry();
+
     var options1 = {steps: 50, curveSegments: 20, extrudePath: path, bevelEnabled: true};
     var romboGeo = new THREE.ExtrudeGeometry(shape,options1);
 

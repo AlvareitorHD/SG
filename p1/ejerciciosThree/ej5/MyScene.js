@@ -50,7 +50,7 @@ class MyScene extends THREE.Scene {
     this.prueba = new Prueba(this.gui, "Controles Prueba");
     this.add (this.prueba);
     this.tuerca = new Tuerca(this.gui, "Controles tuerca");
-    this.tuerca.translateX(4);
+    this.tuerca.translateY(-4);
     this.add (this.tuerca);
 
   }

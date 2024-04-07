@@ -106,21 +106,70 @@ class Tuerca extends THREE.Object3D {
     
     this.createGUI(gui,titleGui);
 
-    var mat = new THREE.MeshNormalMaterial();
+    var mat = new THREE.MeshNormalMaterial({wireframe: false});
 
-    var base = new THREE.CylinderGeometry(1,1,0.5,6,1);
-    var agujero = new THREE.CylinderGeometry(0.5,0.5,1,24,1);
-    agujero.translate(0,-0.1,0);
+    //PRIMERO GEOMETRIAS
+    //TORO: radio interior, radio tubo, resolucion horizontal (circulo), resolucion anillo, abertura (0-2PI)
+    var base = new THREE.TorusGeometry(1,0.5);
+    //Giro el toro para que esté tumbado
+    base.rotateX(Math.PI/2);
+    var agujero1 = new THREE.BoxGeometry(50,10,50);
+    agujero1.translate(0,5.35,0);
+    var agujero2 = new THREE.BoxGeometry(50,10,50);
+    agujero2.translate(0,-5.35,0);
+    //Creo una lista de cubos para dar forma exterior
+    var exts = [];
+    for(let i = 0; i < 6; i++){
+      var c = new THREE.BoxGeometry(2,10,1);
+      c.translate(0,0,1.775);
+      c.rotateY(2*i*Math.PI/6);
+      var cc =new THREE.Mesh(c,mat);
+      //cc.rotation.y = i*Math.PI/4;
+      exts.push(cc);
+    }
 
+    var agugeo = new THREE.CylinderGeometry(1,0.4,10);
+    var dentro = new THREE.Mesh(this.crearHelicoide(0.7,5,1),mat);
+    //SEGUNDO MOVER GEOMETRIAS
     var csg = new CSG();
 
+    //TERCERO HACER LAS MALLAS
     var baseg = new THREE.Mesh(base,mat);
-    var agug = new THREE.Mesh(agujero,mat);
-    csg.union([baseg]);
-    csg.subtract([agug]);
+    var agug1 = new THREE.Mesh(agujero1,mat);
+    var agug2 = new THREE.Mesh(agujero2,mat);
+    var agu = new THREE.Mesh(agugeo,mat);
+
+    //Y YA HACER OPS CON LAS MALLAS
+    csg.subtract([baseg,agu]);
+    csg.subtract([dentro]);
+    csg.subtract([agug1,agug2]);
+    csg.subtract(exts);
+
+    //FINAL: PASARLO A MESH
     this.tuerca = csg.toMesh();
     this.add(this.tuerca);
 
+  }
+
+  crearHelicoide(radio,numVueltas,altura){
+    // Crear una curva helicoidal
+    var points = [];
+    var vueltasCompletas = numVueltas * 2 * Math.PI;
+    var pasoAngular = Math.PI / 24; // Ajusta el paso angular según la resolución deseada
+
+    for (var t = 0; t <= vueltasCompletas; t += pasoAngular) {
+        var x = radio * Math.cos(t);
+        var y = t * altura / vueltasCompletas;
+        var z = radio * Math.sin(t);
+        points.push(new THREE.Vector3(x, y, z));
+    }
+
+    var curvaHelicoidal = new THREE.CatmullRomCurve3(points);
+
+    // Crear el tubo utilizando TubeGeometry
+    var tuboGeometry = new THREE.TubeGeometry(curvaHelicoidal, points.length, radio*0.1, 4, false);
+    tuboGeometry.translate(0,-0.5,0);
+    return tuboGeometry;
   }
 
   createGUI (gui,titleGui) {
