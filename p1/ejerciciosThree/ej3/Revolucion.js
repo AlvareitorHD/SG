@@ -26,6 +26,7 @@ class Peon extends THREE.Object3D {
     var latheGeometry = new THREE.LatheGeometry(this.perfil , 3 , 0 , Math.PI * 2);
     var mat = new THREE.MeshStandardMaterial({color: 0xFF0000, flatShading: true, side:THREE.DoubleSide});
     this.peon = new THREE.Mesh(latheGeometry,mat);
+    this.peon.position.y= -0.5;
     this.add(this.peon);
   }
 

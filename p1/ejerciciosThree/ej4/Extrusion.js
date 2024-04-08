@@ -25,7 +25,7 @@ class Rombo extends THREE.Object3D {
     return shape;
   }
   createExtrusion(shape){
-    var options1 = { depth : 2 , steps : 2 , bevelEnabled : false }; // Ajustar la profundidad a 0.05
+    var options1 = { depth : 2 , steps : 2 , bevelEnabled : true,bevelSegments:10 }; // Ajustar la profundidad a 0.05
     var romboGeo = new THREE.ExtrudeGeometry(shape, options1);
     //romboGeo.scale(1,1,0.2);
     var romboMat = new THREE.MeshStandardMaterial({color: 0x00AA00, flatShading: true}); //new THREE.MeshNormalMaterial({ flatShading: false });
