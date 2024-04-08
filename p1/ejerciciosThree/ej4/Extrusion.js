@@ -289,4 +289,149 @@ rotateShape ( aShape , angle=0 , res = 16 , center = new THREE. Vector2 (0 ,0) )
   }
 }
 
-export { Rombo, Trebol };
+
+class Gato extends THREE.Object3D {
+
+  constructor(gui,titleGui) {
+    super();
+    
+    // Se crea la parte de la interfaz que corresponde a la caja
+    // Se crea primero porque otros métodos usan las variables que se definen para la interfaz
+    this.createGUI(gui,titleGui);
+    var shape = this.createShape();
+    this.createExtrusion(shape);
+  }
+
+  createShape(){
+    //cara
+    var shape = new THREE.Shape();
+    shape.moveTo(-10, -15);
+    shape.lineTo(-10,15);
+    shape.bezierCurveTo(-5,0,5,0,10,15);
+    shape.splineThru([new THREE.Vector2 (12 , 5) ,
+      new THREE.Vector2 (8 , -5), new THREE.Vector2 (10 , -15) ] );
+    shape.quadraticCurveTo(0,-10,-10,-15);
+    //ojo
+    var hole = new THREE.Shape();
+    hole.absellipse(-4,-1,2,3,0,Math.PI*2);
+    shape.holes.push(hole);
+    //boca
+    hole = new THREE.Shape();
+    hole.absarc(0,-9,2,Math.PI*2,Math.PI);
+    shape.holes.push(hole);
+    
+    return shape;
+  }
+
+  generarTornillo(numeroVueltas, altura, radioTornillo) {
+    const puntos = [];
+    const pasoAngular = Math.PI / 24; // Ajusta el paso angular según la resolución deseada
+    // Una vuelta = 2*PI, t será cada punto
+    for (let t = 0; t <= numeroVueltas * 2 * Math.PI; t += pasoAngular) {
+        const x = radioTornillo * Math.cos(t);
+        const y = t * altura / (numeroVueltas * 2 * Math.PI);
+        const z = radioTornillo * Math.sin(t);
+        puntos.push(new THREE.Vector3(x, y, z));
+    }
+
+    return puntos;
+}
+
+rotateShape ( aShape , angle=0 , res = 16 , center = new THREE. Vector2 (0 ,0) ) {
+  var points = aShape.extractPoints( res ).shape;
+  points.forEach ( ( p ) => {
+    p.rotateAround ( center , angle ) ; // Los giramos
+  } ) ;
+  return new THREE.Shape ( points ) ; // Construimos y devolvemos un nuevo shape
+  }
+
+  createExtrusion(shape){
+    //rotate quita los agujeros del shape
+    //shape = this.rotateShape(shape,Math.PI);
+
+
+    var path = new THREE.CatmullRomCurve3(this.generarTornillo(1,100,20));
+    var options1 = {steps: 50, curveSegments: 20, extrudePath: path, bevelEnabled: false};
+    var romboGeo = new THREE.ExtrudeGeometry(shape,options1);
+    romboGeo.scale(0.05,0.05,0.05);
+    var romboMat = new THREE.MeshNormalMaterial({flatShading: true});
+    this.rombo = new THREE.Mesh(romboGeo,romboMat);
+    //this.rombo.geometry.scale(0.1,0.1,0.1);
+    this.add(this.rombo);
+    //EJES:
+    this.axis = new THREE.AxesHelper (1.0);
+    this.add (this.axis);
+
+    this.position.y = -10;
+  }
+
+  createGUI (gui,titleGui) {
+    // Controles para el tamaño, la orientación y la posición de la caja
+    this.guiControls = {
+      //controles CUBO
+      sizeX : 1.0,
+      sizeY : 1.0,
+      sizeZ : 1.0,
+      
+      rotX : 0.0,
+      rotY : 0.0,
+      rotZ : 0.0,
+      
+      posX : 0.0,
+      posY : 0.0,
+      posZ : 0.0,
+      // Un botón para dejarlo todo en su posición inicial
+      // Cuando se pulse se ejecutará esta función.
+      reset : () => {
+        //CUBO
+        this.guiControls.sizeX = 1.0;
+        this.guiControls.sizeY = 1.0;
+        this.guiControls.sizeZ = 1.0;
+        
+        this.guiControls.rotX = 0.0;
+        this.guiControls.rotY = 0.0;
+        this.guiControls.rotZ = 0.0;
+        
+        this.guiControls.posX = 0.0;
+        this.guiControls.posY = 0.0;
+        this.guiControls.posZ = 0.0;
+      }
+    } 
+    // Se crea una sección para los controles de la caja
+    var folder = gui.addFolder (titleGui);
+    // Estas lineas son las que añaden los componentes de la interfaz
+    // Las tres cifras indican un valor mínimo, un máximo y el incremento
+    // El método   listen()   permite que si se cambia el valor de la variable en código, el deslizador de la interfaz se actualice
+    folder.add (this.guiControls, 'sizeX', 0.1, 5.0, 0.01).name ('Tamaño X : ').listen();
+    folder.add (this.guiControls, 'sizeY', 0.1, 5.0, 0.01).name ('Tamaño Y : ').listen();
+    folder.add (this.guiControls, 'sizeZ', 0.1, 5.0, 0.01).name ('Tamaño Z : ').listen();
+    
+    //folder.add (this.guiControls, 'rotX', 0.0, Math.PI/2, 0.01).name ('Rotación X : ').listen();
+    //folder.add (this.guiControls, 'rotY', 0.0, Math.PI/2, 0.01).name ('Rotación Y : ').listen();
+    //folder.add (this.guiControls, 'rotZ', 0.0, Math.PI/2, 0.01).name ('Rotación Z : ').listen();
+    
+    folder.add (this.guiControls, 'posX', -20.0, 20.0, 0.01).name ('Posición X : ').listen();
+    folder.add (this.guiControls, 'posY', 0.0, 10.0, 0.01).name ('Posición Y : ').listen();
+    folder.add (this.guiControls, 'posZ', -20.0, 20.0, 0.01).name ('Posición Z : ').listen();
+    
+    folder.add (this.guiControls, 'reset').name ('[ Reset ]');
+  }
+  
+  update () {
+    // Con independencia de cómo se escriban las 3 siguientes líneas, el orden en el que se aplican las transformaciones es:
+    // Primero, el escalado
+    // Segundo, la rotación en Z
+    // Después, la rotación en Y
+    // Luego, la rotación en X
+    // Y por último la traslación
+    //this.guiControls.rotX +=0.01;
+    //this.guiControls.rotY +=0.01;
+    //this.guiControls.rotZ +=0.01;
+    this.rombo.position.set (this.guiControls.posX,this.guiControls.posY,this.guiControls.posZ);
+    this.rombo.rotation.set (this.guiControls.rotX,this.guiControls.rotY,this.guiControls.rotZ);
+    this.rombo.scale.set (this.guiControls.sizeX,this.guiControls.sizeY,this.guiControls.sizeZ);
+  }
+}
+
+
+export { Rombo, Trebol,Gato };

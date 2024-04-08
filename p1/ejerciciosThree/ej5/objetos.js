@@ -9,6 +9,10 @@ class Taza extends THREE.Object3D {
     this.createGUI(gui,titleGui);
 
     var mat = new THREE.MeshNormalMaterial();
+    // El material se hará con una textura ajedrezada
+    var cargadorTexturas = new THREE.TextureLoader();
+    var textureUp = cargadorTexturas.load('../imgs/abeja.jpg');
+    var text = new THREE.MeshStandardMaterial({map:textureUp});
 
     var cilExt = new THREE.CylinderGeometry(5,5,10,24,1);
     var cilInt = new THREE.CylinderGeometry(4.7,4.7,10,24,1);
@@ -18,7 +22,7 @@ class Taza extends THREE.Object3D {
     cilInt.translate(0,0.3,0);
     torog.translate(-5,0,0);
 
-    var cile = new THREE.Mesh(cilExt,mat);
+    var cile = new THREE.Mesh(cilExt,text);
     var cili = new THREE.Mesh(cilInt,mat);
     var toro = new THREE.Mesh(torog,mat);
 
@@ -108,6 +112,10 @@ class Tuerca extends THREE.Object3D {
 
     var mat = new THREE.MeshNormalMaterial({wireframe: false});
 
+    var cargadorTexturas = new THREE.TextureLoader();
+    var textureUp1 = cargadorTexturas.load('../imgs/metal.jpg');
+    var text1 = new THREE.MeshStandardMaterial({map:textureUp1});
+
     //PRIMERO GEOMETRIAS
     //TORO: radio interior, radio tubo, resolucion horizontal (circulo), resolucion anillo, abertura (0-2PI)
     var base = new THREE.TorusGeometry(1,0.5);
@@ -134,7 +142,7 @@ class Tuerca extends THREE.Object3D {
     var csg = new CSG();
 
     //TERCERO HACER LAS MALLAS
-    var baseg = new THREE.Mesh(base,mat);
+    var baseg = new THREE.Mesh(base,text1);
     var agug1 = new THREE.Mesh(agujero1,mat);
     var agug2 = new THREE.Mesh(agujero2,mat);
     var agu = new THREE.Mesh(agugeo,mat);
