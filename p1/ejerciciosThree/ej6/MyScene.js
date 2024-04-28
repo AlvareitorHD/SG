@@ -53,6 +53,7 @@ class MyScene extends THREE.Scene {
     this.model = new Object(this.gui, "Controles de la Caja");
     this.add (this.model);
     this.circuito = new Circuito(this.gui, "COntroles circuito");
+    this.add(this.circuito);
   }
   
   initStats() {
@@ -76,7 +77,7 @@ class MyScene extends THREE.Scene {
     //   El ángulo del campo de visión en grados sexagesimales
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2000);
     // Recuerda: Todas las unidades están en metros
     // También se indica dónde se coloca
     this.camera.position.set (4, 2, 4);
