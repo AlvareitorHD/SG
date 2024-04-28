@@ -6,9 +6,10 @@ import { GUI } from '../libs/dat.gui.module.js'
 import { TrackballControls } from '../libs/TrackballControls.js'
 import { Stats } from '../libs/stats.module.js'
 
+
 // Clases de mi proyecto
 
-import { Object } from './MyOBJ.js'
+import { Object, Circuito } from './MyOBJ.js'
 
 
 /// La clase fachada del modelo
@@ -51,6 +52,7 @@ class MyScene extends THREE.Scene {
     // la gui y el texto bajo el que se agruparán los controles de la interfaz que añada el modelo.
     this.model = new Object(this.gui, "Controles de la Caja");
     this.add (this.model);
+    this.circuito = new Circuito(this.gui, "COntroles circuito");
   }
   
   initStats() {
