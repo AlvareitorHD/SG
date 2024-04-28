@@ -17,11 +17,23 @@ class Object extends THREE.Object3D {
         ol.setMaterials(materials);
         ol.load( /*'../models/porsche911/Porsche_911_GT2.obj'*/ '../models/f1.obj',
           (box) => {
-            box.translateY(0.6);// Moverlo un poco arriba
+            box.translateY(0.3);// Moverlo un poco arriba
+            
             this.add(box);
           }, null, null);
       });
-
+    
+      // Crear una esfera escalada en Y
+    var sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+    sphereGeometry.scale(1, 1.2, 1.5);
+    var sphereMaterial = new THREE.MeshBasicMaterial({
+      map: new THREE.TextureLoader().load('../imgs/alonso.jpg')
+    });
+    var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.scale.set(0.1, 0.1, 0.08); // Escalar
+    sphere.position.set(0, 0.7, 0.1); // Posicionar
+    sphere.rotation.y -= Math.PI / 2; // Rotar
+    this.add(sphere);
     this.rot = 0;
   }
 
@@ -208,16 +220,16 @@ class Circuito extends THREE.Object3D {
       // Crear la geometría del tubo
       var tubeGeometry = new THREE.TubeGeometry(curve, segments, radius,40,true);
 
-      // Material para el tubo
-      var textura = new THREE.TextureLoader().load('../imgs/carretera1.jpg');
-      textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
-      textura.repeat.set( 1, 1 );
-      var material = new THREE.MeshBasicMaterial({map: textura});
+ // Material para el tubo
+var textura = new THREE.TextureLoader().load('../imgs/carretera1.jpg');
+textura.wrapS = THREE.RepeatWrapping;
+textura.wrapT = THREE.RepeatWrapping;
+textura.repeat.set(10, 1); // Ajusta el factor de repetición según tus necesidades
+var material = new THREE.MeshBasicMaterial({ map: textura });
 
-      // Crear el mesh del tubo y agregarlo al circuito
-      var tubeMesh = new THREE.Mesh(tubeGeometry, material);
-      tubeMesh.scale.set(10,10,10);
-      this.add(tubeMesh);
+// Crear el mesh del tubo y agregarlo al circuito
+var tubeMesh = new THREE.Mesh(tubeGeometry, material);
+this.add(tubeMesh);
 
   }
     createGUI(gui, titleGui) {

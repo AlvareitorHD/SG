@@ -11,7 +11,7 @@ class Taza extends THREE.Object3D {
     var mat = new THREE.MeshNormalMaterial();
     // El material se hará con una textura ajedrezada
     var cargadorTexturas = new THREE.TextureLoader();
-    var textureUp = cargadorTexturas.load('../imgs/abeja.jpg');
+    var textureUp = cargadorTexturas.load('../imgs/carretera1.jpg');
     var text = new THREE.MeshStandardMaterial({map:textureUp});
 
     var cilExt = new THREE.CylinderGeometry(5,5,10,24,1);
