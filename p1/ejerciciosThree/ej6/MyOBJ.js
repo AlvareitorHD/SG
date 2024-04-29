@@ -18,12 +18,11 @@ class Object extends THREE.Object3D {
         ol.load( /*'../models/porsche911/Porsche_911_GT2.obj'*/ '../models/f1.obj',
           (box) => {
             box.translateY(0.3);// Moverlo un poco arriba
-            
             this.add(box);
           }, null, null);
       });
-    
-      // Crear una esfera escalada en Y
+
+    // Crear una esfera escalada en Y
     var sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
     sphereGeometry.scale(1, 1.2, 1.5);
     var sphereMaterial = new THREE.MeshBasicMaterial({
@@ -35,6 +34,26 @@ class Object extends THREE.Object3D {
     sphere.rotation.y -= Math.PI / 2; // Rotar
     this.add(sphere);
     this.rot = 0;
+    this.createNeumatico();
+  }
+  createNeumatico() {
+    // Crear un toro estirado para representar el neumático
+    var tireGeometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+    tireGeometry.scale(1, 1, 1.75);
+    tireGeometry.scale(0.35, 0.35, 0.5);
+    tireGeometry.rotateY(Math.PI / 2);
+    
+    // Crear el material del neumático
+    const material = new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      normalMap: new THREE.TextureLoader().load('../imgs/normal-neuma.png'), // Ruta del mapa normal
+      metalness: 0.5,
+      roughness: 0.5
+    });
+
+    var tire = new THREE.Mesh(tireGeometry, material);
+    tire.position.set(0.5, 0.2, 0.82); // Posicionar
+    this.add(tire);
   }
 
   createGUI(gui, titleGui) {
@@ -208,102 +227,113 @@ class Circuito extends THREE.Object3D {
       new THREE.Vector3(43.947578, -9.482635, 9.205069),
       new THREE.Vector3(40.371586, -10.051542, 9.733340),
       new THREE.Vector3(29.843863, -7.694638, 9.733340),
-      new THREE.Vector3(15.867579, -4.841321, 9.733340)
+      new THREE.Vector3(15.867579, -4.841321, 9.733340),
+      new THREE.Vector3(12.875489, -3.630991, 9.430302),
+      new THREE.Vector3(9.690588, -2.420661, 9.196302),
+      new THREE.Vector3(6.505686, -1.210331, 8.962302),
+      new THREE.Vector3(5.0096415, -0.6051655, 8.962302)
+
     ];
-      // Crear una curva a partir de los vértices
-      var curve = new THREE.CatmullRomCurve3(vertices);
+    // Crear una curva a partir de los vértices
+    var curve = new THREE.CatmullRomCurve3(vertices);
 
-      // Parámetros del tubo
-      var radius = 1.5;
-      var segments = 800;
+    // Parámetros del tubo
+    var radius = 1.5;
+    var segments = 800;
 
-      // Crear la geometría del tubo
-      var tubeGeometry = new THREE.TubeGeometry(curve, segments, radius,40,true);
+    // Crear la geometría del tubo
+    var tubeGeometry = new THREE.TubeGeometry(curve, segments, radius, 40, true);
 
- // Material para el tubo
-var textura = new THREE.TextureLoader().load('../imgs/carretera1.jpg');
-textura.wrapS = THREE.RepeatWrapping;
-textura.wrapT = THREE.RepeatWrapping;
-textura.repeat.set(10, 1); // Ajusta el factor de repetición según tus necesidades
-var material = new THREE.MeshBasicMaterial({ map: textura });
+    // Material para el tubo
+    var textura = new THREE.TextureLoader().load('../imgs/carretera1.jpg');
+    var normal = new THREE.TextureLoader().load('../imgs/normalcarretera.png');
 
-// Crear el mesh del tubo y agregarlo al circuito
-var tubeMesh = new THREE.Mesh(tubeGeometry, material);
-this.add(tubeMesh);
+    textura.wrapS = THREE.RepeatWrapping;
+    textura.wrapT = THREE.RepeatWrapping;
+    textura.repeat.set(10, 1); // Ajusta el factor de repetición según tus necesidades
+    normal.wrapS = THREE.RepeatWrapping;
+    normal.wrapT = THREE.RepeatWrapping;
+    normal.repeat.set(10, 1); // Ajusta el factor de repetición según tus necesidades
 
+    var material = new THREE.MeshStandardMaterial({ map: textura, normalMap: normal, normalScale: new THREE.Vector2(0.1, 0.1)});
+
+    // Crear el mesh del tubo y agregarlo al circuito
+    var tubeMesh = new THREE.Mesh(tubeGeometry, material);
+    this.add(tubeMesh);
   }
-    createGUI(gui, titleGui) {
-      // Controles para el tamaño, la orientación y la posición de la caja
-      this.guiControls = {
-        sizeX: 1.0,
-        sizeY: 1.0,
-        sizeZ: 1.0,
 
-        rotX: 0.0,
-        rotY: 0.0,
-        rotZ: 0.0,
+  createGUI(gui, titleGui) {
+    // Controles para el tamaño, la orientación y la posición de la caja
+    this.guiControls = {
+      sizeX: 1.0,
+      sizeY: 1.0,
+      sizeZ: 1.0,
 
-        posX: 0.0,
-        posY: 0.0,
-        posZ: 0.0,
+      rotX: 0.0,
+      rotY: 0.0,
+      rotZ: 0.0,
 
-        anim: false,
-        // Un botón para dejarlo todo en su posición inicial
-        // Cuando se pulse se ejecutará esta función.
-        reset: () => {
-          this.guiControls.sizeX = 1.0;
-          this.guiControls.sizeY = 1.0;
-          this.guiControls.sizeZ = 1.0;
+      posX: 0.0,
+      posY: 0.0,
+      posZ: 0.0,
 
-          this.guiControls.rotX = 0.0;
-          this.guiControls.rotY = 0.0;
-          this.guiControls.rotZ = 0.0;
+      anim: false,
+      // Un botón para dejarlo todo en su posición inicial
+      // Cuando se pulse se ejecutará esta función.
+      reset: () => {
+        this.guiControls.sizeX = 1.0;
+        this.guiControls.sizeY = 1.0;
+        this.guiControls.sizeZ = 1.0;
 
-          this.guiControls.posX = 0.0;
-          this.guiControls.posY = 0.0;
-          this.guiControls.posZ = 0.0;
-          this.guiControls.anim = false;
-        }
-      };
+        this.guiControls.rotX = 0.0;
+        this.guiControls.rotY = 0.0;
+        this.guiControls.rotZ = 0.0;
 
-      // Se crea una sección para los controles de la caja
-      var folder = gui.addFolder(titleGui);
-      // Estas lineas son las que añaden los componentes de la interfaz
-      // Las tres cifras indican un valor mínimo, un máximo y el incremento
-      // El método   listen()   permite que si se cambia el valor de la variable en código, el deslizador de la interfaz se actualice
-      folder.add(this.guiControls, 'sizeX', 0.1, 5.0, 0.01).name('Tamaño X : ').listen();
-      folder.add(this.guiControls, 'sizeY', 0.1, 5.0, 0.01).name('Tamaño Y : ').listen();
-      folder.add(this.guiControls, 'sizeZ', 0.1, 5.0, 0.01).name('Tamaño Z : ').listen();
-
-      folder.add(this.guiControls, 'rotX', 0.0, Math.PI / 2, 0.01).name('Rotación X : ').listen();
-      folder.add(this.guiControls, 'rotY', 0.0, Math.PI / 2, 0.01).name('Rotación Y : ').listen();
-      folder.add(this.guiControls, 'rotZ', 0.0, Math.PI / 2, 0.01).name('Rotación Z : ').listen();
-
-      folder.add(this.guiControls, 'posX', -20.0, 20.0, 0.01).name('Posición X : ').listen();
-      folder.add(this.guiControls, 'posY', 0.0, 10.0, 0.01).name('Posición Y : ').listen();
-      folder.add(this.guiControls, 'posZ', -20.0, 20.0, 0.01).name('Posición Z : ').listen();
-      folder.add(this.guiControls, 'anim').name('Girar: ').listen();
-      folder.add(this.guiControls, 'reset').name('[ Reset ]');
-    }
-
-    update() {
-      // Con independencia de cómo se escriban las 3 siguientes líneas, el orden en el que se aplican las transformaciones es:
-      // Primero, el escalado
-      // Segundo, la rotación en Z
-      // Después, la rotación en Y
-      // Luego, la rotación en X
-      // Y por último la traslación
-
-      this.position.set(this.guiControls.posX, this.guiControls.posY, this.guiControls.posZ);
-      if (this.guiControls.anim) {
-        this.rot = (this.rot + 0.01) % (Math.PI * 2);
-        this.rotation.set(this.guiControls.rotX, this.rot, this.guiControls.rotZ);
-      } else {
-        this.rotation.set(this.guiControls.rotX, this.guiControls.rotY, this.guiControls.rotZ);
+        this.guiControls.posX = 0.0;
+        this.guiControls.posY = 0.0;
+        this.guiControls.posZ = 0.0;
+        this.guiControls.anim = false;
       }
-      this.scale.set(this.guiControls.sizeX, this.guiControls.sizeY, this.guiControls.sizeZ);
-    }
+    };
+
+    // Se crea una sección para los controles de la caja
+    var folder = gui.addFolder(titleGui);
+    // Estas lineas son las que añaden los componentes de la interfaz
+    // Las tres cifras indican un valor mínimo, un máximo y el incremento
+    // El método   listen()   permite que si se cambia el valor de la variable en código, el deslizador de la interfaz se actualice
+    folder.add(this.guiControls, 'sizeX', 0.1, 5.0, 0.01).name('Tamaño X : ').listen();
+    folder.add(this.guiControls, 'sizeY', 0.1, 5.0, 0.01).name('Tamaño Y : ').listen();
+    folder.add(this.guiControls, 'sizeZ', 0.1, 5.0, 0.01).name('Tamaño Z : ').listen();
+
+    folder.add(this.guiControls, 'rotX', 0.0, Math.PI / 2, 0.01).name('Rotación X : ').listen();
+    folder.add(this.guiControls, 'rotY', 0.0, Math.PI / 2, 0.01).name('Rotación Y : ').listen();
+    folder.add(this.guiControls, 'rotZ', 0.0, Math.PI / 2, 0.01).name('Rotación Z : ').listen();
+
+    folder.add(this.guiControls, 'posX', -20.0, 20.0, 0.01).name('Posición X : ').listen();
+    folder.add(this.guiControls, 'posY', 0.0, 10.0, 0.01).name('Posición Y : ').listen();
+    folder.add(this.guiControls, 'posZ', -20.0, 20.0, 0.01).name('Posición Z : ').listen();
+    folder.add(this.guiControls, 'anim').name('Girar: ').listen();
+    folder.add(this.guiControls, 'reset').name('[ Reset ]');
   }
+
+  update() {
+    // Con independencia de cómo se escriban las 3 siguientes líneas, el orden en el que se aplican las transformaciones es:
+    // Primero, el escalado
+    // Segundo, la rotación en Z
+    // Después, la rotación en Y
+    // Luego, la rotación en X
+    // Y por último la traslación
+
+    this.position.set(this.guiControls.posX, this.guiControls.posY, this.guiControls.posZ);
+    if (this.guiControls.anim) {
+      this.rot = (this.rot + 0.01) % (Math.PI * 2);
+      this.rotation.set(this.guiControls.rotX, this.rot, this.guiControls.rotZ);
+    } else {
+      this.rotation.set(this.guiControls.rotX, this.guiControls.rotY, this.guiControls.rotZ);
+    }
+    this.scale.set(this.guiControls.sizeX, this.guiControls.sizeY, this.guiControls.sizeZ);
+  }
+}
 
 
 export { Object, Circuito };
