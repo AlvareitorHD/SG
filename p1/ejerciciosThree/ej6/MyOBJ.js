@@ -25,7 +25,7 @@ class Object extends THREE.Object3D {
     // Crear una esfera escalada en Y
     var sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
     sphereGeometry.scale(1, 1.2, 1.5);
-    var sphereMaterial = new THREE.MeshBasicMaterial({
+    var sphereMaterial = new THREE.MeshStandardMaterial({
       map: new THREE.TextureLoader().load('../imgs/alonso.jpg')
     });
     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
