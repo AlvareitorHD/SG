@@ -17,6 +17,7 @@ class Object extends THREE.Object3D {
         ol.setMaterials(materials);
         ol.load( /*'../models/porsche911/Porsche_911_GT2.obj'*/ '../models/f1.obj',
           (box) => {
+            box.scale.set(0.2, 0.2, 0.2); // Escalar
             box.translateY(0.3);// Moverlo un poco arriba
             this.add(box);
           }, null, null);
@@ -34,26 +35,38 @@ class Object extends THREE.Object3D {
     sphere.rotation.y -= Math.PI / 2; // Rotar
     this.add(sphere);
     this.rot = 0;
-    this.createNeumatico();
+    
+    var n1 = this.createNeumatico();
+    n1.position.set(0.55, 0.2, 0.82); // Posicionar
+    this.add(n1);
+    var n2 = this.createNeumatico();
+    n2.position.set(-0.55, 0.2, 0.82); // Posicionar
+    this.add(n2);
+    var n3 = this.createNeumatico();
+    n3.position.set(0.55, 0.2, -1.22); // Posicionar
+    this.add(n3);
+    var n4 = this.createNeumatico();
+    n4.position.set(-0.55, 0.2, -1.22); // Posicionar
+    this.add(n4);
   }
   createNeumatico() {
     // Crear un toro estirado para representar el neumático
     var tireGeometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
-    tireGeometry.scale(1, 1, 1.75);
-    tireGeometry.scale(0.35, 0.35, 0.5);
+    tireGeometry.scale(1, 1, 2);
+    tireGeometry.scale(0.35, 0.35, 0.35);
     tireGeometry.rotateY(Math.PI / 2);
-    
+
     // Crear el material del neumático
     const material = new THREE.MeshStandardMaterial({
-      color: 0x111111,
-      normalMap: new THREE.TextureLoader().load('../imgs/normal-neuma.png'), // Ruta del mapa normal
+      color: 0x222222,
+      normalMap: new THREE.TextureLoader().load('../imgs/normal-neu.png'), // Ruta del mapa normal
       metalness: 0.5,
-      roughness: 0.5
+      roughness: 0.5,
+      normalScale: new THREE.Vector2(0.5, 0.5) // Ajustar la escala de la textura normal en X
     });
 
     var tire = new THREE.Mesh(tireGeometry, material);
-    tire.position.set(0.5, 0.2, 0.82); // Posicionar
-    this.add(tire);
+    return tire;
   }
 
   createGUI(gui, titleGui) {
